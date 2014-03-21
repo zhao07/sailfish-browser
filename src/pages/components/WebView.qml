@@ -108,7 +108,7 @@ WebContainer {
     foreground: Qt.application.active
     inputPanelHeight: window.pageStack.panelSize
     inputPanelOpenHeight: window.pageStack.imSize
-    fullscreenMode: (contentItem && contentItem.chromeGestureEnabled && !contentItem.chrome) || webContainer.inputPanelVisible || !webContainer.foreground
+    fullscreenMode: (contentItem && contentItem.chromeGestureEnabled && !contentItem.chrome) || webContainer.inputPanelVisible || !webContainer.foreground || contentItem.fullscreen
     _firstFrameRendered: resourceController.firstFrameRendered
 
     // Triggered when tabs of tab model are available and QmlMozView is ready to load.
@@ -172,6 +172,7 @@ WebContainer {
 
             property bool _deferredReload
             property var _deferredLoad: null
+            property bool fullscreen
 
             function loadTab(newUrl, force) {
                 // Always enable chrome when load is called.
@@ -265,6 +266,7 @@ WebContainer {
                 addMessageListener("Content:SelectionCopied");
                 addMessageListener("embed:selectasync")
                 addMessageListener("embed:filepicker")
+                addMessageListener("embed:fullscreenchanged")
 
                 loadFrameScript("chrome://embedlite/content/SelectAsyncHelper.js")
                 loadFrameScript("chrome://embedlite/content/embedhelper.js")
@@ -312,6 +314,10 @@ WebContainer {
                 }
                 case "embed:filepicker": {
                     PopupHandler.openFilePicker(data)
+                    break
+                }
+                case "embed:fullscreenchanged": {
+                    webView.fullscreen = data.fullscreen
                     break
                 }
                 case "embed:selectasync": {
